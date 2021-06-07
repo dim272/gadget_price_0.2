@@ -56,6 +56,7 @@ class Prices(S):
     megafon = CharField(null=True)
     mts = CharField(null=True)
     sber_mm = CharField(null=True)
+    smartphone_id = IntegerField(null=True)
     updated = CharField(null=True)
 
 
@@ -63,6 +64,7 @@ class PricesSecondMarkets(S):
     id = PrimaryKeyField(unique=True)
     avito = CharField(null=True)
     youla = CharField(null=True)
+    smartphone_id = IntegerField(null=True)
     updated = CharField(null=True)
 
 
