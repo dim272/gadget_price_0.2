@@ -33,15 +33,18 @@ class Smartphones(S):
     release = CharField(null=True)
     os = CharField(null=True)
     display = CharField(null=True)
+    cpu = CharField(null=True)
     cpu_num = CharField(null=True)
     core_speed = CharField(null=True)
     battery = CharField(null=True)
     weight = CharField(null=True)
+    dimensions = CharField(null=True)
     in_stock = BooleanField(null=True)
     url_ekatalog = CharField(null=True)
     url_avito = CharField(null=True)
     url_youla = CharField(null=True)
     img = CharField(null=True)
+    top = IntegerField(null=True)
     updated = CharField(null=True)
 
 
@@ -56,7 +59,7 @@ class Prices(S):
     megafon = CharField(null=True)
     mts = CharField(null=True)
     sber_mm = CharField(null=True)
-    smartphone_id = IntegerField(null=True)
+    smartphone_id = ForeignKeyField(Smartphones, to_field='id')
     updated = CharField(null=True)
 
 
@@ -64,7 +67,7 @@ class PricesSecondMarkets(S):
     id = PrimaryKeyField(unique=True)
     avito = CharField(null=True)
     youla = CharField(null=True)
-    smartphone_id = IntegerField(null=True)
+    smartphone_id = ForeignKeyField(Smartphones, to_field='id')
     updated = CharField(null=True)
 
 

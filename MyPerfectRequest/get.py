@@ -98,7 +98,7 @@ class MyPerfectRequest(MyPerfectProxy):
                 ip = i.proxy
                 server = {schema: ip}
                 req = self.__proxy_check(server, url)
-                print('Request is:', bool(req))
+                print('PROXY', f'{schema}:{ip}', 'IS', bool(req), 'FOR', url)
                 if req:
                     break
                 else:
