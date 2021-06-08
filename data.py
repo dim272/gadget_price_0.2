@@ -78,6 +78,8 @@ class PricesSecondMarkets(S):
     updated = CharField(null=True)
 
 
+smartphones.bind([Smartphones, Prices, PricesSecondMarkets])
+
 ''' Ekatalog.db '''
 
 
