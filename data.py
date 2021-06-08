@@ -155,18 +155,22 @@ class ProxyList(Model):
 
 
 def create_tables():
+    smartphones.init(database=e_db, user=user, password=pwd, host=host)
     smartphones.connect()
     smartphones.create_tables([TopBrands, Smartphones, Prices, PricesSecondMarkets])
     smartphones.close()
 
+    ekatalog.init(database=e_db, user=user, password=pwd, host=host)
     ekatalog.connect()
     ekatalog.create_tables([EkatalogHomepage, EkatalogBrands, EkatalogSmartphones])
     ekatalog.close()
 
+    pda.init(database=e_db, user=user, password=pwd, host=host)
     pda.connect()
     pda.create_tables([PdaCategories, PdaBrands, PdaSmartphones])
     pda.close()
 
+    proxies.init(database=e_db, user=user, password=pwd, host=host)
     proxies.connect()
     proxies.create_tables([ProxyList])
     proxies.close()
