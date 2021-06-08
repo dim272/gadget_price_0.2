@@ -148,17 +148,10 @@ class ProxyList(Model):
 
 
 def create_tables():
-    with smartphones:
-        smartphones.create_tables([TopBrands, Smartphones, Prices, PricesSecondMarkets])
-
-    with ekatalog:
-        ekatalog.create_tables([EkatalogHomepage, EkatalogBrands, EkatalogSmartphones])
-
-    with pda:
-        pda.create_tables([PdaCategories, PdaBrands, PdaSmartphones])
-
-    with proxies:
-        proxies.create_tables([ProxyList])
+    smartphones.create_tables([TopBrands, Smartphones, Prices, PricesSecondMarkets])
+    ekatalog.create_tables([EkatalogHomepage, EkatalogBrands, EkatalogSmartphones])
+    pda.create_tables([PdaCategories, PdaBrands, PdaSmartphones])
+    proxies.create_tables([ProxyList])
 
 
 if __name__ == '__main__':
