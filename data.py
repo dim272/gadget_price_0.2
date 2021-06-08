@@ -148,10 +148,21 @@ class ProxyList(Model):
 
 
 def create_tables():
+    smartphones.connect()
     smartphones.create_tables([TopBrands, Smartphones, Prices, PricesSecondMarkets])
+    smartphones.close()
+
+    ekatalog.connect()
     ekatalog.create_tables([EkatalogHomepage, EkatalogBrands, EkatalogSmartphones])
+    ekatalog.close()
+
+    pda.connect()
     pda.create_tables([PdaCategories, PdaBrands, PdaSmartphones])
+    pda.close()
+
+    proxies.connect()
     proxies.create_tables([ProxyList])
+    proxies.close()
 
 
 if __name__ == '__main__':
