@@ -4,15 +4,19 @@ from config import *
 
 ekatalog = PostgresqlDatabase(e_db)
 ekatalog.init(database=e_db, user=user, password=pwd, host=host)
+ekatalog = PostgresqlDatabase(database=e_db, user=user, password=pwd, host=host)
 
 pda = PostgresqlDatabase(p_db)
 pda.init(database=p_db, user=user, password=pwd, host=host)
+pda = PostgresqlDatabase(database=e_db, user=user, password=pwd, host=host)
 
 smartphones = PostgresqlDatabase(s_db)
 smartphones.init(database=s_db, user=user, password=pwd, host=host)
+smartphones = PostgresqlDatabase(database=e_db, user=user, password=pwd, host=host)
 
 proxies = PostgresqlDatabase(proxy)
 proxies.init(database=proxy, user=user, password=pwd, host=host)
+proxies = PostgresqlDatabase(database=e_db, user=user, password=pwd, host=host)
 
 
 ''' Smartphones.db '''
@@ -157,25 +161,10 @@ class ProxyList(Model):
 
 
 def create_tables():
-    smartphones.init(database=e_db, user=user, password=pwd, host=host)
-    smartphones.connect()
     smartphones.create_tables([TopBrands, Smartphones, Prices, PricesSecondMarkets])
-    smartphones.close()
-
-    ekatalog.init(database=e_db, user=user, password=pwd, host=host)
-    ekatalog.connect()
     ekatalog.create_tables([EkatalogHomepage, EkatalogBrands, EkatalogSmartphones])
-    ekatalog.close()
-
-    pda.init(database=e_db, user=user, password=pwd, host=host)
-    pda.connect()
     pda.create_tables([PdaCategories, PdaBrands, PdaSmartphones])
-    pda.close()
-
-    proxies.init(database=e_db, user=user, password=pwd, host=host)
-    proxies.connect()
     proxies.create_tables([ProxyList])
-    proxies.close()
 
 
 if __name__ == '__main__':
