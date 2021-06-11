@@ -2,20 +2,9 @@ from peewee import *
 
 from config import *
 
-ekatalog = PostgresqlDatabase(e_db)
-ekatalog.init(database=e_db, user=user, password=pwd, host=host)
 ekatalog = PostgresqlDatabase(database=e_db, user=user, password=pwd, host=host)
-
-pda = PostgresqlDatabase(p_db)
-pda.init(database=p_db, user=user, password=pwd, host=host)
 pda = PostgresqlDatabase(database=e_db, user=user, password=pwd, host=host)
-
-smartphones = PostgresqlDatabase(s_db)
-smartphones.init(database=s_db, user=user, password=pwd, host=host)
 smartphones = PostgresqlDatabase(database=e_db, user=user, password=pwd, host=host)
-
-proxies = PostgresqlDatabase(proxy)
-proxies.init(database=proxy, user=user, password=pwd, host=host)
 proxies = PostgresqlDatabase(database=e_db, user=user, password=pwd, host=host)
 
 
