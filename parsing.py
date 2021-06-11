@@ -787,7 +787,12 @@ class Ekatalog(SecondMarket):
         print(spec_dict)
         db = Smartphones
         db.insert_many(spec_dict).execute()
-        smart = db.get(db.brand == brand, db.model == model, db.ram == ram, db.storage == storage, db.nfc == nfc)
+
+        if ram and storage:
+            smart = db.get(db.brand == brand, db.model == model, db.ram == ram, db.storage == storage, db.nfc == nfc)
+        else:
+            smart = db.get(db.brand == brand, db.model == model)
+
         smart_id = smart.id
 
         self.__price_collect_and_insert_in_db(soup, request, today, smart_id)
