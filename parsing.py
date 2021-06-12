@@ -6,6 +6,7 @@ import smtplib
 import config
 from data import *
 import MyPerfectRequest.get as r
+from keyboards import Brand
 
 
 class SecondMarket:
@@ -827,7 +828,7 @@ class Ekatalog(SecondMarket):
         for row in brands_list:
             brand = row.brand
             print(brand.strip())
-            # keyboards.main.Brand.increase_top_value(brand)
+            Brand.increase_top_value(brand)
         all_mobiles_select = home_page_links.get(home_page_links.section == 'Мобильные')
         all_mobiles_urls = all_mobiles_select.link_all
         print('взяли ссылку на все мобилки:', all_mobiles_urls)
@@ -957,8 +958,23 @@ class Pda(SecondMarket):
                     print('Добавляем в бд:', category_name, brand_name, link)
                     self.__new_brands.append([category_name, brand_name, link])
                     db.create(category=category_name, brand=brand_name, link=link, updated=today)
+
+                    if category_name == 'Телефоны':
+                        self.__add_brand_name_to_topbrands_table(brand_name)
+
                 else:
                     continue
+
+    @staticmethod
+    def __add_brand_name_to_topbrands_table(brand_name):
+        db = TopBrands
+        try:
+            double = db.get(db.brand == brand_name)
+        except DoesNotExist:
+            double = ''
+
+        if not double:
+            db.create(brand=brand_name, top=0)
 
     def __models_links_parsing(self, soup, brand_name):
         # collect link and image for each model in a given brand

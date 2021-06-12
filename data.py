@@ -2,13 +2,11 @@ from peewee import *
 
 from config import *
 
-ekatalog = PostgresqlDatabase(database=e_db, user=user, password=pwd, host=host)
-pda = PostgresqlDatabase(database=e_db, user=user, password=pwd, host=host)
-smartphones = PostgresqlDatabase(database=e_db, user=user, password=pwd, host=host)
-proxies = PostgresqlDatabase(database=e_db, user=user, password=pwd, host=host)
+smartphones = PostgresqlDatabase(database=s_db, user=user, password=pwd, host=host)
+proxies = PostgresqlDatabase(database=proxy, user=user, password=pwd, host=host)
 
 
-''' Smartphones.db '''
+''' Smartphones '''
 
 
 class S(Model):
@@ -73,16 +71,10 @@ class PricesSecondMarkets(S):
 
 smartphones.bind([Smartphones, Prices, PricesSecondMarkets])
 
-''' Ekatalog.db '''
+''' Ekatalog '''
 
 
-class E(Model):
-
-    class Meta:
-        database = ekatalog
-
-
-class EkatalogHomepage(E):
+class EkatalogHomepage(S):
     id = PrimaryKeyField(unique=True)
     section = CharField(null=True)
     link = CharField(null=True)
@@ -90,14 +82,14 @@ class EkatalogHomepage(E):
     updated = CharField(null=True)
 
 
-class EkatalogBrands(E):
+class EkatalogBrands(S):
     id = PrimaryKeyField(unique=True)
     brand = CharField(null=True)
     link = CharField(null=True)
     updated = CharField(null=True)
 
 
-class EkatalogSmartphones(E):
+class EkatalogSmartphones(S):
     id = PrimaryKeyField(unique=True)
     model = CharField(null=True)
     link = CharField(null=True)
@@ -105,23 +97,17 @@ class EkatalogSmartphones(E):
     updated = CharField(null=True)
 
 
-''' Pda.db '''
+''' Pda '''
 
 
-class P(Model):
-
-    class Meta:
-        database = pda
-
-
-class PdaCategories(P):
+class PdaCategories(S):
     id = PrimaryKeyField(unique=True)
     category = CharField(null=True)
     link = CharField(null=True)
     updated = CharField(null=True)
 
 
-class PdaBrands(P):
+class PdaBrands(S):
     id = PrimaryKeyField(unique=True)
     category = CharField(null=True)
     brand = CharField(null=True)
@@ -129,7 +115,7 @@ class PdaBrands(P):
     updated = CharField(null=True)
 
 
-class PdaSmartphones(P):
+class PdaSmartphones(S):
     id = PrimaryKeyField(unique=True)
     brand = CharField(null=True)
     model = CharField(null=True)
@@ -138,7 +124,7 @@ class PdaSmartphones(P):
     updated = CharField(null=True)
 
 
-''' proxies.db '''
+''' proxies '''
 
 
 class ProxyList(Model):
@@ -150,9 +136,8 @@ class ProxyList(Model):
 
 
 def create_tables():
-    smartphones.create_tables([TopBrands, Smartphones, Prices, PricesSecondMarkets])
-    ekatalog.create_tables([EkatalogHomepage, EkatalogBrands, EkatalogSmartphones])
-    pda.create_tables([PdaCategories, PdaBrands, PdaSmartphones])
+    smartphones.create_tables([TopBrands, Smartphones, Prices, PricesSecondMarkets, EkatalogHomepage,
+                               EkatalogBrands, EkatalogSmartphones, PdaCategories, PdaBrands, PdaSmartphones])
     proxies.create_tables([ProxyList])
 
 
