@@ -57,6 +57,7 @@ class Prices(S):
     megafon = CharField(null=True)
     mts = CharField(null=True)
     sber_mm = CharField(null=True)
+    aliexpress = CharField(null=True)
     smartphone_id = ForeignKeyField(Smartphones, to_field='id')
     updated = CharField(null=True)
 

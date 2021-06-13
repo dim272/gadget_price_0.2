@@ -418,7 +418,7 @@ class Info:
             prices2 = []
 
         ozon = yandex = mvideo = eldorado = citilink = svyaznoy = \
-            megafon = mts = sber = avito = youla = ''
+            aliexpress = megafon = mts = sber = avito = youla = ''
 
         message = []
 
@@ -432,6 +432,7 @@ class Info:
             megafon = item.megafon
             mts = item.mts
             sber = item.sber_mm
+            aliexpress = item.aliexpress
 
         for item in prices2:
             avito = item.avito
@@ -467,6 +468,10 @@ class Info:
 
         if mts:
             row = f'МТС: {mts} р'
+            message.append(row)
+
+        if aliexpress:
+            row = f'AliExpress: {aliexpress} р (возможно не новый)'
             message.append(row)
 
         if sber:

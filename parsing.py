@@ -626,7 +626,7 @@ class Ekatalog(SecondMarket):
             shops = []
 
         favorite_shops = ['mts.ru', 'svyaznoy.ru', 'citilink.ru', 'м.видео', 'megafon.ru', 'eldorado.ru',
-                          'ozon.ru', 'sbermegamarket.ru']
+                          'ozon.ru', 'sbermegamarket.ru', 'aliexpress.ru']
 
         result = []
 
