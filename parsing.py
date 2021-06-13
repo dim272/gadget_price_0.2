@@ -828,7 +828,7 @@ class Ekatalog(SecondMarket):
         for row in brands_list:
             brand = row.brand
             print(brand.strip())
-            Brand.increase_top_value(brand)
+            Brand.increase_top_value(brand.strip())
         all_mobiles_select = home_page_links.get(home_page_links.section == 'Мобильные')
         all_mobiles_urls = all_mobiles_select.link_all
         print('взяли ссылку на все мобилки:', all_mobiles_urls)
@@ -953,6 +953,9 @@ class Pda(SecondMarket):
                     continue
 
                 brand_name = self.__get_brand_name_brands_links_parsing(title)
+
+                if brand_name.strip() == 'AllCall':
+                    link = 'https://4pda.to/devdb/phones/allcall/all'
 
                 if link and brand_name:
                     print('Добавляем в бд:', category_name, brand_name, link)
@@ -1079,8 +1082,15 @@ class Pda(SecondMarket):
 
             its_os = re.search(r'система', row_title)
             if its_os:
-                os = self.__check_val_for_split(row_value)
-                result['os'] = os
+                os_ = self.__check_val_for_split(row_value)
+
+                os_ = os_.split(',')
+                if len(os_) > 1:
+                    os_ = os_[-1]
+                else:
+                    os_ = os_[0]
+
+                result['os'] = os_
                 continue
 
             its_battery = re.search(r'аккум', row_title)
@@ -1135,6 +1145,13 @@ class Pda(SecondMarket):
             its_cpu = re.search(r'процессор', row_title)
             if its_cpu:
                 cpu = self.__check_val_for_split(row_value)
+
+                cpu = cpu.split(',')
+                if len(cpu) > 1:
+                    cpu = cpu[-1]
+                else:
+                    cpu = cpu[0]
+
                 result['cpu'] = cpu
                 continue
 
@@ -1472,9 +1489,21 @@ class Pda(SecondMarket):
             result_dict_with_nfc = self.__get_nfc_from_ekatalog_db(result_dict)
             brand = result_dict['brand']
             model = result_dict['model']
-            ram = result_dict['ram']
-            storage = result_dict['storage']
-            nfc = result_dict_with_nfc['nfc']
+            try:
+                ram = result_dict['ram']
+            except KeyError:
+                ram = ''
+
+            try:
+                storage = result_dict['storage']
+            except KeyError:
+                storage = ''
+
+            try:
+                nfc = result_dict_with_nfc['nfc']
+            except KeyError:
+                nfc = ''
+
             avito_youla_links = self._avito_youla_links(brand, model, ram, storage, nfc)
             finale_dict = {**result_dict_with_nfc, **avito_youla_links}
             duplicate = self.__check_db_for_duplicates(result_dict_with_nfc)
@@ -1485,9 +1514,42 @@ class Pda(SecondMarket):
                 db.insert_many(finale_dict).execute()
             else:
                 print('update values to:', brand, model, ram, storage)
-                db.update(cpu=result_dict['cpu'], os=result_dict['os'], dimensions=result_dict['dimensions'],
-                          core_speed=result_dict['core_speed']).\
-                    where(db.brand == brand, db.model == model, db.ram == ram, db.storage == storage, db.nfc == nfc)
+
+                try:
+                    cpu = result_dict['cpu']
+                except KeyError:
+                    cpu = ''
+
+                try:
+                    os_ = result_dict['os']
+                except KeyError:
+                    os_ = ''
+
+                try:
+                    dimensions = result_dict['dimensions']
+                except KeyError:
+                    dimensions = ''
+
+                try:
+                    core_speed = result_dict['core_speed']
+                except KeyError:
+                    core_speed = ''
+
+                db.update(cpu=cpu, os=os_, dimensions=dimensions, core_speed=core_speed). \
+                    where(db.brand == brand, db.model == model, db.ram == ram, db.storage == storage, db.nfc == nfc)\
+                    .execute()
+
+    @staticmethod
+    def __add_brand_name_to_topbrands_table(brand_name):
+        db = TopBrands
+
+        try:
+            double = db.get(db.brand == brand_name)
+        except DoesNotExist:
+            double = ''
+
+        if not double:
+            db.create(brand=brand_name.strip(), top=0)
 
     def total_parsing(self):
         # start a general collection or update of all data from the 4pda.ru/devdb/
@@ -1521,6 +1583,8 @@ class Pda(SecondMarket):
 
             if not brand_name or not link:
                 continue
+
+            self.__add_brand_name_to_topbrands_table(brand_name)
 
             soup = request.soup(link)
             self.__models_links_parsing(soup, brand_name)

@@ -385,20 +385,6 @@ class Info:
         else:
             in_stock = 'Нет в продаже'
 
-        if cpu:
-            cpu = cpu.split(',')
-            if len(cpu) > 1:
-                cpu = cpu[-1]
-            else:
-                cpu = cpu[0]
-
-        if os_:
-            os_ = os_.split(',')
-            if len(os_) > 1:
-                os_ = os_[-1]
-            else:
-                os_ = os_[0]
-
         message = f'{first_row}\n' \
                   f'Релиз: {release}, Экран: {display}\n' \
                   f'ОС: {os_}, Аккум.: {battery} мАч\n' \
