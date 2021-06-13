@@ -37,6 +37,7 @@ async def to_beginning(call: CallbackQuery):
 async def brand_choice(call: CallbackQuery, callback_data: dict):
     await call.answer(cache_time=1)
     item = callback_data.get('which')
+    item = item.strip()
     if item == 'next':
         b.next_page()
         k = b.keyboard_generator()
@@ -48,7 +49,7 @@ async def brand_choice(call: CallbackQuery, callback_data: dict):
     else:
         global brand_name
         brand_name = item
-        b.increase_top_value(brand_name)
+        Brand.increase_top_value(brand_name)
         global m
         m = Model(brand_name)
         k = m.keyboard_generator()

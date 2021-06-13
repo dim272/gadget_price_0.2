@@ -196,28 +196,34 @@ class Model(Choice):
         super().__init__()
 
     def __get_models(self):
+        print('Get models to brand:', self.brand.strip())
         db = Smartphones
-        select = db.select(db.model).where(db.brand == self.brand).order_by(db.top.desc())
+        select = db.select(db.model).where(db.brand == self.brand.strip()).order_by(db.top.desc())
         model_list = []
         for each in select:
             model = each.model
             if model not in model_list:
                 model_list.append(model)
+
+        print(model_list)
         return model_list
 
     @staticmethod
     def increase_top_value(model_name):
+        print('Increase top value model:', model_name)
         db = Smartphones
         try:
             select = db.get(db.model.contains(model_name.strip()))
             top = select.top
+            print('increase top value from:', top)
+            print(select.model)
 
             try:
                 top += 1
             except TypeError:
                 top = 1
-
-            select.update(top=top).where(db.brand == select.brand).execute()
+            print('to:', top)
+            select.update(top=top).where(db.model == select.model).execute()
         except DoesNotExist:
             pass
 
@@ -230,12 +236,14 @@ class Ram(Choice):
         super().__init__()
 
     def __get_ram(self):
+        print('get ram')
         db = Smartphones
-        select = db.select(db.ram).where(db.brand == self.brand, db.model == self.model)
+        select = db.select(db.ram).where(db.brand == self.brand.strip(), db.model == self.model.strip())
         ram_list = []
         for each in select:
             try:
                 ram = each.ram
+                print(ram)
             except:
                 continue
             if ram not in ram_list:
@@ -253,8 +261,11 @@ class Storage(Choice):
         super().__init__()
 
     def __get_storage(self):
+        print('get storage')
         db = Smartphones
-        select = db.select(db.storage).where(db.brand == self.brand, db.model == self.model, db.ram == self.ram)
+        select = db.select(db.storage).where(db.brand == self.brand.strip(),
+                                             db.model == self.model.strip(),
+                                             db.ram == self.ram.strip())
         storage_list = []
         for each in select:
             try:
@@ -291,7 +302,7 @@ class FinaleKeyboard(Breadcrumbs):
         super().__init__()
 
     def links_to_markets(self):
-        db = smartphones.Smartphones
+        db = Smartphones
         search = db.select().where(db.id == self.id)
         links = {}
 
@@ -342,10 +353,12 @@ class Info:
         specifications = db.select().where(db.brand == self.brand, db.model == self.model,
                                            db.ram == self.ram, db.storage == self.storage)
 
+        id_ = db.get(db.brand == self.brand, db.model == self.model, db.ram == self.ram, db.storage == self.storage)
+        smart_id = id_.id
+
         release = os_ = weight = dimensions = battery = display = cpu = in_stock = cpu_num = core_speed = '---'
 
         for item in specifications:
-            self.id = smart_id = item.id
             release = item.release
             os_ = item.os
             weight = item.weight
@@ -357,9 +370,6 @@ class Info:
             cpu_num = item.cpu_num
             core_speed = item.core_speed
             img = item.img
-            url_ekatalog = item.url_ekatalog
-            url_avito = item.url_avito
-            url_youla = item.url_youla
 
         if self.ram and self.storage:
             first_row = f'{self.brand} {self.model} {self.ram}/{self.storage}'
@@ -403,22 +413,21 @@ class Info:
             for row in prices:
                 message += f'\n{row}'
 
-        return {'text': message, 'img': img, 'eskatalog': url_ekatalog,
-                'avito': url_avito, 'youla': url_youla, 'smartphone_id': smart_id}
+        return {'text': message, 'img': img, 'smartphone_id': smart_id}
 
     @staticmethod
     def prices(smartphone_id):
         prices_table = Prices
 
         try:
-            prices = prices_table.get(prices_table.smartphone_id == smartphone_id)
+            prices = prices_table.select().where(prices_table.smartphone_id == smartphone_id)
         except DoesNotExist:
             prices = []
 
         prices2_table = PricesSecondMarkets
 
         try:
-            prices2 = prices2_table.get(prices2_table.smartphone_id == smartphone_id)
+            prices2 = prices2_table.select().where(prices2_table.smartphone_id == smartphone_id)
         except DoesNotExist:
             prices2 = []
 

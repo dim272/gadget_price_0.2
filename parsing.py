@@ -1478,10 +1478,16 @@ class Pda(SecondMarket):
             avito_youla_links = self._avito_youla_links(brand, model, ram, storage, nfc)
             finale_dict = {**result_dict_with_nfc, **avito_youla_links}
             duplicate = self.__check_db_for_duplicates(result_dict_with_nfc)
+
             if not duplicate:
                 print('================> New row in base:\n', finale_dict)
                 self.__new_smartphones_added_in_db.append([brand, model, ram, storage, nfc])
                 db.insert_many(finale_dict).execute()
+            else:
+                print('update values to:', brand, model, ram, storage)
+                db.update(cpu=result_dict['cpu'], os=result_dict['os'], dimensions=result_dict['dimensions'],
+                          core_speed=result_dict['core_speed']).\
+                    where(db.brand == brand, db.model == model, db.ram == ram, db.storage == storage, db.nfc == nfc)
 
     def total_parsing(self):
         # start a general collection or update of all data from the 4pda.ru/devdb/
