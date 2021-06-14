@@ -198,7 +198,7 @@ class Model(Choice):
     def __get_models(self):
         print('Get models to brand:', self.brand.strip())
         db = Smartphones
-        select = db.select(db.model).where(db.brand == self.brand.strip()).order_by(db.top.desc())
+        select = db.select(db.model).where(db.brand == self.brand.strip()).order_by(db.top)
         model_list = []
         for each in select:
             model = each.model
@@ -263,9 +263,14 @@ class Storage(Choice):
     def __get_storage(self):
         print('get storage')
         db = Smartphones
-        select = db.select(db.storage).where(db.brand == self.brand.strip(),
-                                             db.model == self.model.strip(),
-                                             db.ram == self.ram.strip())
+
+        if self.ram:
+            select = db.select(db.storage).where(db.brand == self.brand.strip(),
+                                                 db.model == self.model.strip(),
+                                                 db.ram == self.ram.strip())
+        else:
+            select = db.select(db.storage).where(db.brand == self.brand.strip(),
+                                                 db.model == self.model.strip())
         storage_list = []
         for each in select:
             try:
@@ -283,7 +288,12 @@ class Breadcrumbs(Choice):
         super().__init__()
 
     def breadcrumbs_keyboard(self, brand, model, ram, storage):
-        specifications = [['brand', brand], ['model', model], ['ram', ram], ['storage', storage]]
+        values = [brand, model, ram, storage]
+        specifications = []
+        for val in values:
+            if val:
+                specifications.append([f'{val}', val])
+
         breadcrumbs = []
         start_button = self._start_button()
         breadcrumbs.append(start_button)
@@ -302,6 +312,7 @@ class FinaleKeyboard(Breadcrumbs):
         super().__init__()
 
     def links_to_markets(self):
+        print(self.id)
         db = Smartphones
         search = db.select().where(db.id == self.id)
         links = {}
@@ -354,7 +365,7 @@ class Info:
                                            db.ram == self.ram, db.storage == self.storage)
 
         id_ = db.get(db.brand == self.brand, db.model == self.model, db.ram == self.ram, db.storage == self.storage)
-        smart_id = id_.id
+        self.id = smart_id = id_.id
 
         release = os_ = weight = dimensions = battery = display = cpu = in_stock = cpu_num = core_speed = '---'
 

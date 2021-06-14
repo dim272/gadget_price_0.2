@@ -76,11 +76,11 @@ class MyPerfectRequest(MyPerfectProxy):
 
     def __proxy_check(self, server, url):
         headers = self.__headers()
+        req = ''
         try:
-            req = requests.get(url, headers=headers, proxies=server, timeout=7)
+            req = requests.get(url, headers=headers, proxies=server, timeout=4)
         except requests.exceptions.RequestException:
-            req = ''
-
+            pass
         return req
 
     def __request_with_proxy(self, url):
@@ -99,11 +99,17 @@ class MyPerfectRequest(MyPerfectProxy):
                 server = {schema: ip}
                 req = self.__proxy_check(server, url)
                 print('PROXY', f'{schema}:{ip}', 'IS', bool(req), 'FOR', url)
+
+                if req.status_code == 404:
+                    req = f'{url} NOT FOUND. ERROR 404'
+                    print(req)
+
                 if req:
                     break
                 else:
                     ProxyList.delete().where(ProxyList.proxy == ip).execute()
                     continue
+
             if req:
                 break
 
@@ -120,7 +126,10 @@ class MyPerfectRequest(MyPerfectProxy):
 
     def soup(self, url):
         r = self.__request(url)
-        soup = BeautifulSoup(r.text, 'lxml')
+        if type(r) == str:
+            soup = 'Error 404'
+        else:
+            soup = BeautifulSoup(r.text, 'lxml')
         return soup
 
     def manual_request_and_soup(self, url, server):
