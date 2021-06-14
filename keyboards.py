@@ -168,13 +168,11 @@ class Brand(Choice):
 
     @staticmethod
     def __get_top_brands():
-        print('Top brands')
         db = TopBrands
         select = db.select(db.brand).order_by(db.top.desc())
         brand_list = []
         for each in select:
             brand_list.append(each.brand)
-        print(brand_list)
         return brand_list
 
     @staticmethod
@@ -196,7 +194,6 @@ class Model(Choice):
         super().__init__()
 
     def __get_models(self):
-        print('Get models to brand:', self.brand.strip())
         db = Smartphones
         select = db.select(db.model).where(db.brand == self.brand.strip()).order_by(db.top.desc())
         model_list = []
@@ -205,24 +202,19 @@ class Model(Choice):
             if model not in model_list:
                 model_list.append(model)
 
-        print(model_list)
         return model_list
 
     @staticmethod
     def increase_top_value(model_name):
-        print('Increase top value model:', model_name)
         db = Smartphones
         try:
             select = db.get(db.model.contains(model_name.strip()))
             top = select.top
-            print('increase top value from:', top)
-            print(select.id)
 
             try:
                 top += 1
             except TypeError:
                 top = 1
-            print('to:', top)
             select.update(top=top).where(db.id == select.id).execute()
         except DoesNotExist:
             pass
@@ -236,14 +228,12 @@ class Ram(Choice):
         super().__init__()
 
     def __get_ram(self):
-        print('get ram')
         db = Smartphones
         select = db.select(db.ram).where(db.brand == self.brand.strip(), db.model == self.model.strip())
         ram_list = []
         for each in select:
             try:
                 ram = each.ram
-                print(ram)
             except:
                 continue
             if ram not in ram_list:
@@ -261,7 +251,6 @@ class Storage(Choice):
         super().__init__()
 
     def __get_storage(self):
-        print('get storage')
         db = Smartphones
 
         if self.ram:
@@ -288,11 +277,11 @@ class Breadcrumbs(Choice):
         super().__init__()
 
     def breadcrumbs_keyboard(self, brand, model, ram, storage):
-        values = [brand, model, ram, storage]
+        values = [['brand', brand], ['model', model], ['ram', ram], ['storage', storage]]
         specifications = []
         for val in values:
-            if val:
-                specifications.append([f'{val}', val])
+            if val[1]:
+                specifications.append([f'{val[0]}', val[1]])
 
         breadcrumbs = []
         start_button = self._start_button()
@@ -312,7 +301,6 @@ class FinaleKeyboard(Breadcrumbs):
         super().__init__()
 
     def links_to_markets(self):
-        print(self.id)
         db = Smartphones
         search = db.select().where(db.id == self.id)
         links = {}
@@ -358,30 +346,7 @@ class Info:
     def __init__(self):
         self.id = None
 
-    def specifications(self):
-        db = Smartphones
-
-        specifications = db.select().where(db.brand == self.brand, db.model == self.model,
-                                           db.ram == self.ram, db.storage == self.storage)
-
-        id_ = db.get(db.brand == self.brand, db.model == self.model, db.ram == self.ram, db.storage == self.storage)
-        self.id = smart_id = id_.id
-
-        release = os_ = weight = dimensions = battery = display = cpu = in_stock = cpu_num = core_speed = '---'
-
-        for item in specifications:
-            release = item.release
-            os_ = item.os
-            weight = item.weight
-            dimensions = item.dimensions
-            battery = item.battery
-            display = item.display
-            cpu = item.cpu
-            in_stock = item.in_stock
-            cpu_num = item.cpu_num
-            core_speed = item.core_speed
-            img = item.img
-
+    def _first_row_generator(self):
         if self.ram and self.storage:
             first_row = f'{self.brand} {self.model} {self.ram}/{self.storage}'
         elif self.ram and not self.storage:
@@ -391,18 +356,104 @@ class Info:
         else:
             first_row = f'{self.brand} {self.model}'
 
-        if in_stock:
+        return first_row
+
+    def _get_specifications_from_db(self):
+        db = Smartphones
+        specifications = db.select().where(db.brand == self.brand, db.model == self.model,
+                                           db.ram == self.ram, db.storage == self.storage)
+
+        spec_dict = specifications.dicts().execute()
+        result = {}
+        for item in spec_dict:
+            result = {**result, **item}
+        return result
+
+    @staticmethod
+    def _specifications_text_generator(block_list):
+        text = row = ''
+        len_row = 40
+
+        for item in block_list:
+            item = item[0]
+            item_plus = ''
+            if len(row) > 0:
+                item_plus = '   ' + item
+
+            try:
+                if item_plus:
+                    row2 = row + item_plus
+                else:
+                    row2 = row + item
+
+                if len(row2) <= len_row:
+                    row = row2
+                    continue
+                else:
+                    raise ValueError
+            except ValueError:
+                text += f'{row}\n'
+                row = item
+
+        if row not in text:
+            text += f'{row}\n'
+
+        return text
+
+    def _specifications_block_generator(self, specifications):
+        keys = {'release': 'Релиз:', 'os': 'ОС:', 'display': 'Экран:', 'cpu': 'Процессор:',
+                'cpu_num': 'Количество ядер:', 'core_speed': 'Такт. частота:', 'battery': 'Ёмкость аккум.:',
+                'weight': 'Вес:', 'dimensions': 'Габариты (мм):'}
+
+        values = {'release': 'г.', 'display': '"', 'cpu_num': 'шт.', 'core_speed': 'МГц/ГГц',
+                  'battery': 'мАч', 'weight': 'гр.'}
+
+        block_list = []
+
+        for row in specifications:
+
+            if not specifications[row]:
+                continue
+
+            if row in keys.keys():
+
+                key = keys[row]
+                val = specifications[row]
+
+                if row in values:
+                    after_value = values[row]
+                    if row == 'core_speed':
+                        try:
+                            experiment_val = float(val)
+                            if experiment_val > 10.0:
+                                after_value = 'МГц'
+                            else:
+                                after_value = 'ГГц'
+                        except ValueError:
+                            after_value = 'МГц'
+
+                    val = f'{val} {after_value}'
+
+                block_list.append([f'{key} {val}'])
+
+        text = self._specifications_text_generator(block_list)
+
+        if specifications['in_stock']:
             in_stock = 'Есть в продаже'
         else:
             in_stock = 'Нет в продаже'
 
-        message = f'{first_row}\n' \
-                  f'Релиз: {release}, Экран: {display}\n' \
-                  f'ОС: {os_}, Аккум.: {battery} мАч\n' \
-                  f'Проц.: {cpu}\n' \
-                  f'Количество ядер: {cpu_num}, Такт. частота: {core_speed} ГГц\n' \
-                  f'Габариты (мм): {dimensions}\n' \
-                  f'Вес: {weight} гр., {in_stock}'
+        text += in_stock
+
+        return text
+
+    def specifications(self):
+        specifications = self._get_specifications_from_db()
+        self.id = smart_id = specifications['id']
+        img = specifications['img']
+
+        message = f'{self._first_row_generator()}\n'
+        message += self._specifications_block_generator(specifications)
 
         prices = self.prices(smart_id)
 
