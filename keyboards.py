@@ -198,7 +198,7 @@ class Model(Choice):
     def __get_models(self):
         print('Get models to brand:', self.brand.strip())
         db = Smartphones
-        select = db.select(db.model).where(db.brand == self.brand.strip()).order_by(db.top)
+        select = db.select(db.model).where(db.brand == self.brand.strip()).order_by(db.top.desc())
         model_list = []
         for each in select:
             model = each.model
@@ -216,14 +216,14 @@ class Model(Choice):
             select = db.get(db.model.contains(model_name.strip()))
             top = select.top
             print('increase top value from:', top)
-            print(select.model)
+            print(select.id)
 
             try:
                 top += 1
             except TypeError:
                 top = 1
             print('to:', top)
-            select.update(top=top).where(db.model == select.model).execute()
+            select.update(top=top).where(db.id == select.id).execute()
         except DoesNotExist:
             pass
 
