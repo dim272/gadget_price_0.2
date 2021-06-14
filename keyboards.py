@@ -198,7 +198,7 @@ class Model(Choice):
     def __get_models(self):
         print('Get models to brand:', self.brand.strip())
         db = Smartphones
-        select = db.select(db.model).where(db.brand == self.brand.strip()).order_by(db.top.desc())
+        select = db.select(db.model).where(db.brand == self.brand.strip()).order_by(db.top)
         model_list = []
         for each in select:
             model = each.model
